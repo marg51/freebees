@@ -16,6 +16,9 @@ describe("get POST 1", () => {
         .expectHeaderContains("content-type", "application/json")
         .expectJSONContains("userId")
         .expectJSONMatchesObject({ id: 1 })
+        .expectBodyToMatchSnapshot()
+    // .expectHeadersToMatchSnapshot()
+    // .expectToMatchSnapshot()
 })
 
 describe("get comments", () => {

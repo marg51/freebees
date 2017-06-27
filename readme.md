@@ -20,6 +20,7 @@ describe("get comments", () => {
         .expectJSONMatchesObject({ id: 1 }, "0") // get first item, can be a path (ie. users.0.name )
         .expectBodyContains("Eliseo@gardner.biz")
         .expectBodyContains(/@sydney.com/)
+        .expectBodyToMatchSnapshot()
         .it("expect body should have length 500", ({ body }) => {
             return expect(body.length).toBe(500)
         })
