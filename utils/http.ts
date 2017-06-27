@@ -3,8 +3,6 @@ import * as jsonschema from "jsonschema"
 
 import createMatchers from "./createMatchers"
 
-const fs = require("fs")
-
 export default {
     get(url: any) {
         if (typeof url == "string")

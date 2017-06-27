@@ -1,43 +1,59 @@
 import { get } from "lodash"
 import * as request from "request"
+const fs = require("fs")
+
+const Table = require('cli-table')
+const prettyjson = require('prettyjson')
 
 export default function createMatchers(promise: Promise<request.RequestCallback>) {
     const fns: Function[] = []
 
     return {
         expectStatus(status: number) {
-            fns.push((received: any) => expect(received.response.statusCode).toBe(status))
+            it("expect http status to be " + status, () => {
+                return promise.then((received: any) => expect(received.response.statusCode).toBe(status))
+            })
 
             return this
         },
         expectHeaderContains(name: string, value: string) {
-            fns.push((received: any) => it("should have header " + name, () => expect(received.response.headers[name]).toBe(value)))
+            it(`expect header ${name} to contain ${value}`, () => {
+                return promise.then((received: any) => it("should have header " + name, () => expect(received.response.headers[name]).toBe(value)))
+            })
 
             return this
         },
         expectHeader(name: string) {
-            fns.push((received: any) => expect(received.response.headers[name]).toBeDefined())
-
+            it(`expect header ${name} to be defined`, () => {
+                return promise.then((received: any) => expect(received.response.headers[name]).toBeDefined())
+            })
             return this
         },
         expectJSONContains(path: string) {
-            fns.push((received: any) => expect(received.body).toHaveProperty(path))
+            it(`expect body to have property ${path}`, () => {
+
+                return promise.then((received: any) => expect(received.body).toHaveProperty(path))
+            })
 
             return this
         },
         expectJSONMatchesObject(path: string, value: object) {
-            fns.push((received: any) => expect(get(received.body, path)).toMatchObject(value))
-
+            it(`expect body.${path} to match {${Object.keys(value).map(key => `${key}: ${value[key]}`)[0]}, ...})`, () => {
+                return promise.then((received: any) => expect(get(received.body, path)).toMatchObject(value))
+            })
             return this
         },
         expectBodyContains(value: string | RegExp) {
-            fns.push((received: any) => {
-                let body = received.body
+            it(`expect body to contain ${value}`, () => {
 
-                if (typeof body == "object")
-                    body = JSON.stringify(body)
+                return promise.then((received: any) => {
+                    let body = received.body
 
-                expect(body).toMatch(value)
+                    if (typeof body == "object")
+                        body = JSON.stringify(body)
+
+                    expect(body).toMatch(value)
+                })
             })
 
             return this
@@ -45,7 +61,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
         expectJSONSchema(schema: jsonschema.Schema) {
             // this.expectHeaderContains("content-type", "application/json")
 
-            // fns.push(
+            // return promise.then(
             //     (received: any) => {
             //         const validation = jsonschema.validate(received.body, schema)
 
@@ -55,46 +71,81 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
             return this
         },
         expectMaxResponseTime(time: number) {
-            // time to download content is not included
-            fns.push((received: any) => expect(received.response.timings.response).toBeLessThan(time))
+            it(`expect response time to be less than ${time}`, () => {
+
+                // time to download content is not included
+                return promise.then((received: any) => expect(received.response.timings.response).toBeLessThan(time))
+            })
 
             return this
         },
         expectMaxEndTime(time: number) {
-            fns.push((received: any) => expect(received.response.timings.end).toBeLessThan(time))
-
+            it(`expect total time to be less than ${time}`, () => {
+                return promise.then((received: any) => expect(received.response.timings.end).toBeLessThan(time))
+            })
             return this
         },
         // Duration of HTTP download (timings.end - timings.response)
         expectMaxDownloadTime(time: number) {
-            fns.push((received: any) => expect(received.response.timingPhases.download).toBeLessThan(time))
+            it(`expect download time to be less than ${time}`, () => {
+
+                return promise.then((received: any) => expect(received.response.timingPhases.download).toBeLessThan(time))
+            })
 
             return this
         },
-        go() {
-            return promise.then((data) => {
-                return fns.map(fn => fn(data))
-            })
-        },
         expect(callback: Function) {
-            fns.push(
-                (received: any) => expect(callback(received)).toBeTruthy()
-            )
+            it(`expect ${callback.toString()
+                .replace("\n", " ")
+                .replace(/ {2,}/g, "  ")
+                .slice(0, 50)}...`
+                , () => {
+                    return promise.then(
+                        (received: any) => expect(callback(received)).toBeTruthy()
+                    )
+                })
 
             return this
         },
         debug(callback: Function) {
-            fns.push(callback)
+            return promise.then(callback)
 
             return this
         },
         printToFile(callback: Function, filename = "test.txt") {
+            it(`prints to file ${__dirname + "/" + filename}`, () => {
+                return promise.then(
+                    (received: any) => fs.writeFile(__dirname + "/" + filename, callback(received))
+                )
+            })
 
-            fns.push(
-                (received: any) => fs.writeFile(__dirname + "/" + filename, callback(received))
-            )
+
+            return this
+        },
+        showResponse() {
+            it("show response", () => {
+                return promise.then(
+                    (received: any) => {
+
+                        const table = createTableFromObject(received.response.headers)
+                        console.log(table.toString());
+
+                        console.log(prettyjson.render(received.body))
+                    }
+                )
+            })
 
             return this
         }
     }
+}
+
+function createTableFromObject(object: object) {
+    const table = new Table();
+    const keys = Object.keys(object)
+    const objects = keys.map((key: string) => ({ [key]: object[key] }))
+
+    table.push(...objects);
+
+    return table
 }
