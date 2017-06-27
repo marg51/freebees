@@ -1,6 +1,6 @@
 # Free bees :bee:
 
-Inspired by http://frisbyjs.com/, using jest
+Inspired by http://frisbyjs.com/, using jest and https://github.com/request/request
 
 <img width="471" alt="screen shot 2017-06-27 at 12 20 50" src="https://user-images.githubusercontent.com/543507/27585472-52f7cc02-5b34-11e7-8573-b7456030ba33.png">
 
@@ -8,6 +8,7 @@ Inspired by http://frisbyjs.com/, using jest
 ```javascript
 describe("get comments", () => {
     Freebees
+        // see https://github.com/request/request
         .get({
             url: "https://jsonplaceholder.typicode.com/comments",
             json: true
@@ -23,7 +24,8 @@ describe("get comments", () => {
             return expect(body.length).toBe(500)
         })
 
-})```
+})
+```
 
 
 ### debug queries
