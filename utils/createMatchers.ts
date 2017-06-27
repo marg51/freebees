@@ -20,7 +20,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
         },
         expectHeaderContains(name: string, value: string) {
             describe("headers", () =>
-                it(`expect header ${name} to contain ${value}`, () => {
+                it(`expect ${name} to contain ${value}`, () => {
                     return promise.then((received: any) => it("should have header " + name, () => expect(received.response.headers[name]).toBe(value)))
                 })
             )
@@ -29,7 +29,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
         },
         expectHeader(name: string) {
             describe("headers", () =>
-                it(`expect header ${name} to be defined`, () => {
+                it(`expect ${name} to be defined`, () => {
                     return promise.then((received: any) => expect(received.response.headers[name]).toBeDefined())
                 })
             )
@@ -38,7 +38,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
         },
         expectJSONContains(path: string) {
             describe("body", () =>
-                it(`expect body to have property ${path}`, () => {
+                it(`to have property ${path}`, () => {
 
                     return promise.then((received: any) => expect(received.body).toHaveProperty(path))
                 })
@@ -48,7 +48,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
         },
         expectJSONMatchesObject(value: object, path?: string, ) {
             describe("body", () =>
-                it(`expect ${path ? "." + path : "body"} to match {${Object.keys(value).map(key => `${key}: ${value[key]}`)[0]}, ...})`, () => {
+                it(`${path ? "." + path : null} to match {${Object.keys(value).map(key => `${key}: ${value[key]}`)[0]}, ...})`, () => {
 
                     return promise.then((received: any) => {
                         let body = received.body
@@ -64,7 +64,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
         },
         expectBodyContains(value: string | RegExp) {
             describe("body", () =>
-                it(`expect body to contain ${value}`, () => {
+                it(`should contain ${value}`, () => {
 
                     return promise.then((received: any) => {
                         let body = received.body
@@ -88,6 +88,37 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
 
             //         expect(validation.errors.length).toBe(0)
             //     })
+
+            return this
+        },
+        expectBodyToMatchSnapshot() {
+            describe("body", () =>
+                it("should match snapshot", () =>
+                    promise.then(({ body }) => expect(body).toMatchSnapshot())
+                )
+            )
+
+            return this
+        },
+        expectHeadersToMatchSnapshot() {
+            describe("headers", () =>
+                it("should match snapshot", () =>
+                    promise.then(({ response }) => expect(response.headers).toMatchSnapshot())
+                )
+            )
+
+            return this
+        },
+        expectToMatchSnapshot() {
+            describe("query", () =>
+                it("should match snapshot", () =>
+                    promise.then((received) => expect({
+                        statusCode: received.response.statusCode,
+                        headers: received.response.headers,
+                        body: received.body
+                    }).toMatchSnapshot())
+                )
+            )
 
             return this
         },
