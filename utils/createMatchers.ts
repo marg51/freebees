@@ -1,18 +1,19 @@
 import { get } from "lodash"
 import * as request from "request"
+import { Response } from "./types"
 const fs = require("fs")
 
 const Table = require('cli-table')
 const prettyjson = require('prettyjson')
 
-export default function createMatchers(promise: Promise<request.RequestCallback>) {
+export default function createMatchers(promise: Promise<Response>) {
     const fns: Function[] = []
 
     return {
         expectStatus(status: number) {
             describe("query", () =>
                 it("expect http status to be " + status, () => {
-                    return promise.then((received: any) => expect(received.response.statusCode).toBe(status))
+                    return promise.then((received: Response) => expect(received.response.statusCode).toBe(status))
                 })
             )
 
@@ -21,7 +22,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
         expectHeaderContains(name: string, value: string) {
             describe("headers", () =>
                 it(`expect ${name} to contain ${value}`, () => {
-                    return promise.then((received: any) => it("should have header " + name, () => expect(received.response.headers[name]).toBe(value)))
+                    return promise.then((received: Response) => it("should have header " + name, () => expect(received.response.headers[name]).toBe(value)))
                 })
             )
 
@@ -30,7 +31,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
         expectHeader(name: string) {
             describe("headers", () =>
                 it(`expect ${name} to be defined`, () => {
-                    return promise.then((received: any) => expect(received.response.headers[name]).toBeDefined())
+                    return promise.then((received: Response) => expect(received.response.headers[name]).toBeDefined())
                 })
             )
 
@@ -40,7 +41,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
             describe("body", () =>
                 it(`to have property ${path}`, () => {
 
-                    return promise.then((received: any) => expect(received.body).toHaveProperty(path))
+                    return promise.then((received: Response) => expect(received.body).toHaveProperty(path))
                 })
             )
 
@@ -50,7 +51,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
             describe("body", () =>
                 it(`${path ? "." + path : null} to match {${Object.keys(value).map(key => `${key}: ${value[key]}`)[0]}, ...})`, () => {
 
-                    return promise.then((received: any) => {
+                    return promise.then((received: Response) => {
                         let body = received.body
 
                         if (path) body = get(received.body, path)
@@ -66,8 +67,8 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
             describe("body", () =>
                 it(`should contain ${value}`, () => {
 
-                    return promise.then((received: any) => {
-                        let body = received.body
+                    return promise.then((received: Response) => {
+                        let body: any = received.body
 
                         if (typeof body == "object")
                             body = JSON.stringify(body)
@@ -83,7 +84,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
             // this.expectHeaderContains("content-type", "application/json")
 
             // return promise.then(
-            //     (received: any) => {
+            //     (received: Response) => {
             //         const validation = jsonschema.validate(received.body, schema)
 
             //         expect(validation.errors.length).toBe(0)
@@ -126,7 +127,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
             describe("query", () =>
                 it(`expect response time to be less than ${time}`, () => {
                     // time to download content is not included
-                    return promise.then((received: any) => expect(received.response.timings.response).toBeLessThan(time))
+                    return promise.then((received: Response) => expect(received.response.timings.response).toBeLessThan(time))
                 })
             )
 
@@ -135,7 +136,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
         expectMaxEndTime(time: number) {
             describe("query", () =>
                 it(`expect total time to be less than ${time}`, () => {
-                    return promise.then((received: any) => expect(received.response.timings.end).toBeLessThan(time))
+                    return promise.then((received: Response) => expect(received.response.timings.end).toBeLessThan(time))
                 })
             )
 
@@ -145,7 +146,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
         expectMaxDownloadTime(time: number) {
             describe("query", () =>
                 it(`expect download time to be less than ${time}`, () => {
-                    return promise.then((received: any) => expect(received.response.timingPhases.download).toBeLessThan(time))
+                    return promise.then((received: Response) => expect(received.response.timingPhases.download).toBeLessThan(time))
                 })
             )
 
@@ -155,7 +156,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
             describe("custom", () =>
                 it(name, () => {
                     return promise.then(
-                        (received: any) => callback(received)
+                        (received: Response) => callback(received)
                     )
                 })
             )
@@ -163,7 +164,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
             return this
         },
         debug(callback: Function) {
-            return promise.then(callback)
+            promise.then((received: Response) => callback(received))
 
             return this
         },
@@ -171,7 +172,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
             describe("debug", () =>
                 it(`prints to file ${__dirname + "/" + filename}`, () => {
                     return promise.then(
-                        (received: any) => fs.writeFile(__dirname + "/" + filename, callback(received))
+                        (received: Response) => fs.writeFile(__dirname + "/" + filename, callback(received))
                     )
                 })
             )
@@ -183,7 +184,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
             describe("debug", () =>
                 it("show response", () => {
                     return promise.then(
-                        (received: any) => {
+                        (received: Response) => {
 
                             const table = createTableFromObject(received.response.headers)
                             console.log(table.toString());
@@ -200,7 +201,7 @@ export default function createMatchers(promise: Promise<request.RequestCallback>
 }
 
 function createTableFromObject(object: object) {
-    const table = new Table();
+    const table = new Table()
     const keys = Object.keys(object)
     const objects = keys.map((key: string) => ({ [key]: object[key] }))
 
