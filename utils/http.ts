@@ -7,20 +7,21 @@ export default {
     get(url: any) {
         if (typeof url == "string")
             url = {
-                url
+                url,
             }
 
-
         const promise = new Promise((resolve, reject) => {
-            request({
-                ...url,
-                time: true
-            }, (error: any, response: request.RequestResponse, body: any) => {
-                resolve({ error, response, body })
-            })
+            request(
+                {
+                    ...url,
+                    time: true,
+                },
+                (error: any, response: request.RequestResponse, body: any) => {
+                    resolve({ error, response, body })
+                }
+            )
         })
 
-        return createMatchers(promise)
-    }
+        return createMatchers(promise, url)
+    },
 }
-
