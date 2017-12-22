@@ -5,6 +5,8 @@ const fs = require("fs")
 const Table = require("cli-table")
 const prettyjson = require("prettyjson")
 
+require("colors")
+
 type URL = { url: string; [key: string]: any }
 
 export default function createMatchers(promise: Promise<Response>, url: URL) {
@@ -13,40 +15,32 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
     const test = createTest(promise, url)
 
     return {
-        expectStatus(status: number) {
-            test(
-                "query",
-                "expect http status to be " + status,
-                (received: Response) =>
-                    expect(received.response.statusCode).toBe(status)
+        // HTTP STATUS
+        expectHttpStatus(status: number) {
+            test("query", `HTTP status is ${status}`, (received: Response) =>
+                expect(received.response.statusCode).toBe(status)
             )
 
             return this
         },
         expectHeaderContains(name: string, value: string) {
-            test(
-                "headers",
-                `expect ${name} to contain ${value}`,
-                (received: Response) =>
-                    it("should have header " + name, () =>
-                        expect(received.response.headers[name]).toBe(value)
-                    )
+            test("headers", `${name} contains ${value}`, (received: Response) =>
+                it("should have header " + name, () =>
+                    expect(received.response.headers[name]).toBe(value)
+                )
             )
 
             return this
         },
         expectHeader(name: string) {
-            test(
-                "headers",
-                `expect ${name} to be defined`,
-                (received: Response) =>
-                    expect(received.response.headers[name]).toBeDefined()
+            test("headers", `${name} is defined`, (received: Response) =>
+                expect(received.response.headers[name]).toBeDefined()
             )
 
             return this
         },
         expectJSONContains(path: string) {
-            test("body", `to have property ${path}`, (received: Response) =>
+            test("body", `has property ${path}`, (received: Response) =>
                 expect(received.body).toHaveProperty(path)
             )
 
@@ -55,7 +49,7 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
         expectJSONMatchesObject(value: any, path?: string) {
             test(
                 "body",
-                `${path ? "." + path : null} to match {${
+                `${path ? "." + path : "content"} to match {${
                     Object.keys(value).map(key => `${key}: ${value[key]}`)[0]
                 }, ...})`,
                 (received: Response) => {
@@ -70,7 +64,7 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
             return this
         },
         expectBodyContains(value: string | RegExp) {
-            test("body", `should contain ${value}`, (received: Response) => {
+            test("body", `contains "${value}"`, (received: Response) => {
                 let body: any = received.body
 
                 if (typeof body == "object") body = JSON.stringify(body)
@@ -93,21 +87,21 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
             return this
         },
         expectBodyToMatchSnapshot() {
-            test("body", "should match snapshot", ({ body }) =>
+            test("body", "match snapshot", ({ body }) =>
                 expect(body).toMatchSnapshot()
             )
 
             return this
         },
         expectHeadersToMatchSnapshot() {
-            test("headers", "should match snapshot", ({ response }) =>
+            test("headers", "match snapshot", ({ response }) =>
                 expect(response.headers).toMatchSnapshot()
             )
 
             return this
         },
         expectToMatchSnapshot() {
-            test("query", "should match snapshot", received =>
+            test("query", "match snapshot", received =>
                 expect({
                     statusCode: received.response.statusCode,
                     headers: received.response.headers,
@@ -120,7 +114,7 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
         expectMaxResponseTime(time: number) {
             test(
                 "query",
-                `expect response time to be less than ${time}`,
+                `response time is lower than ${time}`,
                 // time to download content is not included
                 (received: Response) =>
                     expect(received.response.timings.response).toBeLessThan(
@@ -133,7 +127,7 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
         expectMaxEndTime(time: number) {
             test(
                 "query",
-                `expect total time to be less than ${time}`,
+                `total time is lower than ${time}`,
                 (received: Response) =>
                     expect(received.response.timings.end).toBeLessThan(time)
             )
@@ -144,7 +138,7 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
         expectMaxDownloadTime(time: number) {
             test(
                 "query",
-                `expect download time to be less than ${time}`,
+                `download time is lower than ${time}`,
                 (received: Response) =>
                     expect(
                         received.response.timingPhases.download
@@ -153,6 +147,7 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
 
             return this
         },
+        // user can define any kind of test
         it(name: string, callback: Function) {
             test("custom", name, callback)
 
@@ -188,8 +183,8 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
 
 function createTest(promise: Promise<Response>, url: URL) {
     return (type: string, name: string, callback: Function) =>
-        describe(url.method || "GET" + " " + url.url, () =>
-            describe(type, () =>
+        describe((url.method || "GET" + " " + url.url).cyan, () =>
+            describe("• " + type, () =>
                 it(name, () =>
                     promise.then((received: Response) => callback(received))
                 )
