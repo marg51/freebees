@@ -24,13 +24,13 @@ describe("get POST 1", () => {
 describe("get comments", () => {
     Freebees
         .get({
-            url: "https://jsonplaceholder.typicode.com/comments",
+            url: "https://jsonplaceholder.typicode.com/comments?post_id=1",
             json: true
         })
         .expectStatus(200)
-        .expectMaxResponseTime(500)
-        .expectMaxDownloadTime(1500)
-        .expectMaxEndTime(2000) // end time = response + download
+        .expectMaxResponseTime(1000)
+        .expectMaxDownloadTime(5000)
+        .expectMaxEndTime(6000) // end time = response + download
         .expectJSONMatchesObject({ id: 1 }, "0") // get first item, can be a path (ie. users.0.name )
         .expectBodyContains("Eliseo@gardner.biz")
         .expectBodyContains(/@sydney.com/)
