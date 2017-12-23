@@ -1,45 +1,42 @@
 {
-  "name": "freebees",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "jest"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/es6-shim": "^0.31.34",
-    "@types/jest": "^20.0.2",
-    "@types/lodash": "^4.14.66",
-    "@types/node": "^8.0.2",
-    "@types/request": "0.0.44",
-    "babel-jest": "^20.0.3",
-    "jest": "^20.0.4",
-    "ts-jest": "^20.0.6",
-    "typescript": "^2.3.4"
-  },
-  "jest": {
-    "transform": {
-      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    "name": "freebees",
+    "version": "0.0.1",
+    "description": "API testing made easy",
+    "main": "dist/index.js",
+    "scripts": {
+        "test": "jest"
     },
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/__tests__/**/*.ts",
-      "**/?(*.)(spec|test).ts"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ]
-  },
-  "dependencies": {
-    "cli-table": "^0.3.1",
-    "jsonschema": "^1.1.1",
-    "lodash": "^4.17.4",
-    "prettyjson": "^1.2.1",
-    "request": "^2.81.0"
-  }
+    "files": ["dist"],
+    "author": "Laurent Margirier <laurent.margirier+npm@gmail.com>",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/marg51/freebees"
+    },
+    "devDependencies": {
+        "@types/es6-shim": "^0.31.34",
+        "@types/jest": "^20.0.2",
+        "@types/lodash": "^4.14.66",
+        "@types/node": "^8.0.2",
+        "@types/request": "0.0.44",
+        "babel-jest": "^20.0.3",
+        "jest": "^20.0.4",
+        "ts-jest": "^20.0.6",
+        "typescript": "^2.3.4"
+    },
+    "jest": {
+        "transform": {
+            ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+        },
+        "testEnvironment": "node",
+        "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)(spec|test).ts"],
+        "moduleFileExtensions": ["ts", "tsx", "js", "json"]
+    },
+    "dependencies": {
+        "cli-table": "^0.3.1",
+        "jsonschema": "^1.1.1",
+        "lodash": "^4.17.4",
+        "prettyjson": "^1.2.1",
+        "request": "^2.81.0"
+    }
 }
