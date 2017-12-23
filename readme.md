@@ -2,6 +2,10 @@
 
 Inspired by http://frisbyjs.com/, using jest and https://github.com/request/request
 
+```bash
+npm install freebees
+```
+
 <img width="471" alt="screen shot 2017-06-27 at 12 20 50" src="https://user-images.githubusercontent.com/543507/27585472-52f7cc02-5b34-11e7-8573-b7456030ba33.png">
 
 ```javascript
@@ -24,6 +28,41 @@ Freebees
     })
 ```
 
-### debug queries
+### getting started
 
-<img width="696" alt="screen shot 2017-06-27 at 12 21 49" src="https://user-images.githubusercontent.com/543507/27585477-5b988f04-5b34-11e7-8e27-9f6f97618aa9.png">
+```bash
+npm install --save freebees jest
+```
+
+update your `package.json`'s _scripts.test_ value to `jest`:
+
+```json
+{
+    "scripts": {
+        "test": "jest"
+    }
+}
+```
+
+create a new file `http.test.js`
+
+```js
+var freebees = require("freebees")
+const http = freebees.default.http
+
+// or
+
+import { http } from "freebees"
+
+http
+    .get({
+        url: "https://jsonplaceholder.typicode.com/posts/1",
+        json: true,
+    })
+    .expectHeader("x-powered-by")
+    .expectHeaderContains("content-type", "application/json")
+    .expectJSONContains("userId")
+    .expectJSONMatchesObject({ id: 1 })
+```
+
+`npm t` to run the tests
