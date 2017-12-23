@@ -3,6 +3,8 @@ import * as jsonschema from "jsonschema"
 
 import createMatchers from "./createMatchers"
 
+import { Response } from "./types"
+
 export default {
     get(url: any) {
         if (typeof url == "string")
@@ -10,7 +12,7 @@ export default {
                 url,
             }
 
-        const promise = new Promise((resolve, reject) => {
+        const promise: Promise<Response> = new Promise((resolve, reject) => {
             request(
                 {
                     ...url,

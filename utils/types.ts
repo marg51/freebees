@@ -1,18 +1,9 @@
-import { Headers } from "request"
+import { Headers, RequestResponse } from "request"
 
 export type Response = {
-    body: object,
-    response: {
-        headers: Headers
-        statusCode: number
-        timingPhases: {
-            download: number
-        }
-        timings: {
-            end: number
-            download: number
-            response: number
-        }
-    },
+    body: {
+        [key: string]: any
+    }
+    response: RequestResponse
     error: any
 }

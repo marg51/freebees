@@ -8,6 +8,7 @@ const prettyjson = require("prettyjson")
 require("colors")
 
 type URL = { url: string; [key: string]: any }
+type Callback = (data: Response) => any
 
 export default function createMatchers(promise: Promise<Response>, url: URL) {
     const fns: Function[] = []
@@ -25,9 +26,14 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
         },
         expectHeaderContains(name: string, value: string) {
             test("headers", `${name} contains ${value}`, (received: Response) =>
-                it("should have header " + name, () =>
-                    expect(received.response.headers[name]).toBe(value)
-                )
+                expect(received.response.headers[name]).toContain(value)
+            )
+
+            return this
+        },
+        expectHeaderToBe(name: string, value: string) {
+            test("headers", `${name} contains ${value}`, (received: Response) =>
+                expect(received.response.headers[name]).toBe(value)
             )
 
             return this
@@ -74,17 +80,20 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
 
             return this
         },
-        expectJSONSchema(schema: jsonschema.Schema) {
-            // this.expectHeaderContains("content-type", "application/json")
+        // expectJSONSchema(schema: jsonschema.Schema) {
+        // this.expectHeaderContains("content-type", "application/json")
 
-            // return promise.then(
-            //     (received: Response) => {
-            //         const validation = jsonschema.validate(received.body, schema)
+        // return promise.then(
+        //     (received: Response) => {
+        //         const validation = jsonschema.validate(received.body, schema)
 
-            //         expect(validation.errors.length).toBe(0)
-            //     })
+        //         expect(validation.errors.length).toBe(0)
+        //     })
 
-            return this
+        expectJSONSchema() {
+            throw new Error(
+                "[freebees.expectJSONSchema()] is not implemented yet"
+            )
         },
         expectBodyToMatchSnapshot() {
             test("body", "match snapshot", ({ body }) =>
@@ -101,11 +110,11 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
             return this
         },
         expectToMatchSnapshot() {
-            test("query", "match snapshot", received =>
+            test("query", "match snapshot", ({ response, body }: Response) =>
                 expect({
-                    statusCode: received.response.statusCode,
-                    headers: received.response.headers,
-                    body: received.body,
+                    statusCode: response.statusCode,
+                    headers: response.headers,
+                    body,
                 }).toMatchSnapshot()
             )
 
@@ -116,10 +125,8 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
                 "query",
                 `response time is lower than ${time}`,
                 // time to download content is not included
-                (received: Response) =>
-                    expect(received.response.timings.response).toBeLessThan(
-                        time
-                    )
+                ({ response }: Response) =>
+                    expect(response.timings.response).toBeLessThan(time)
             )
 
             return this
@@ -128,8 +135,8 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
             test(
                 "query",
                 `total time is lower than ${time}`,
-                (received: Response) =>
-                    expect(received.response.timings.end).toBeLessThan(time)
+                ({ response }: Response) =>
+                    expect(response.timings.end).toBeLessThan(time)
             )
 
             return this
@@ -139,21 +146,24 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
             test(
                 "query",
                 `download time is lower than ${time}`,
-                (received: Response) =>
-                    expect(
-                        received.response.timingPhases.download
-                    ).toBeLessThan(time)
+                ({ response }: Response) =>
+                    expect(response.timingPhases.download).toBeLessThan(time)
             )
 
             return this
         },
         // user can define any kind of test
-        it(name: string, callback: Function) {
+        it(name: string, callback: Callback) {
             test("custom", name, callback)
 
             return this
         },
-        debug(callback: Function) {
+        debug(callback: Callback) {
+            if (!callback) {
+                throw new Error(
+                    "[freebeese.debug()] a function is expected as first param"
+                )
+            }
             promise.then((received: Response) => callback(received))
 
             return this
@@ -178,11 +188,19 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
 
             return this
         },
+        showHeaders() {
+            test("debug", "show response", (received: Response) => {
+                const table = createTableFromObject(received.response.headers)
+                console.log(table.toString())
+            })
+
+            return this
+        },
     }
 }
 
 function createTest(promise: Promise<Response>, url: URL) {
-    return (type: string, name: string, callback: Function) =>
+    return (type: string, name: string, callback: Callback) =>
         describe((url.method || "GET" + " " + url.url).cyan, () =>
             describe("• " + type, () =>
                 it(name, () =>

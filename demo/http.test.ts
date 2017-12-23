@@ -27,6 +27,7 @@ describe("Test jsonplaceholder.typicode.com endpoints", () => {
         .expectMaxResponseTime(1000)
         .expectMaxDownloadTime(5000)
         .expectMaxEndTime(6000) // end time = response + download
+        .expectHeaderToBe("content-type", "application/json; charset=utf-8")
         .expectJSONMatchesObject({ id: 1 }, "0") // get first item, can be a path (ie. users.0.name )
         .expectBodyContains("Eliseo@gardner.biz")
         .expectBodyContains(/@sydney.com/)
