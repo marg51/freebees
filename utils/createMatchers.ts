@@ -126,7 +126,9 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
                 `response time is lower than ${time}`,
                 // time to download content is not included
                 ({ response }: Response) =>
-                    expect(response.timings.response).toBeLessThan(time)
+                    expect(
+                        response.timings && response.timings.response
+                    ).toBeLessThan(time)
             )
 
             return this
@@ -136,7 +138,9 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
                 "query",
                 `total time is lower than ${time}`,
                 ({ response }: Response) =>
-                    expect(response.timings.end).toBeLessThan(time)
+                    expect(
+                        response.timings && response.timings.end
+                    ).toBeLessThan(time)
             )
 
             return this
@@ -147,7 +151,9 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
                 "query",
                 `download time is lower than ${time}`,
                 ({ response }: Response) =>
-                    expect(response.timingPhases.download).toBeLessThan(time)
+                    expect(
+                        response.timingPhases && response.timingPhases.download
+                    ).toBeLessThan(time)
             )
 
             return this
