@@ -4,11 +4,10 @@
     "description": "API testing made easy",
     "main": "dist/index.js",
     "scripts": {
-        "test": "jest"
+        "test": "jest",
+        "prepublishOnly": "tsc"
     },
-    "files": [
-        "dist"
-    ],
+    "files": ["dist"],
     "author": "Laurent Margirier <laurent.margirier+npm@gmail.com>",
     "license": "MIT",
     "repository": {
@@ -31,16 +30,8 @@
             ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
         },
         "testEnvironment": "node",
-        "testMatch": [
-            "**/__tests__/**/*.ts",
-            "**/?(*.)(spec|test).ts"
-        ],
-        "moduleFileExtensions": [
-            "ts",
-            "tsx",
-            "js",
-            "json"
-        ]
+        "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)(spec|test).ts"],
+        "moduleFileExtensions": ["ts", "tsx", "js", "json"]
     },
     "dependencies": {
         "cli-table": "^0.3.1",
