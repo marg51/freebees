@@ -1,5 +1,7 @@
 import { get } from "lodash"
 import { Response } from "./types"
+import { Validator } from "jsonschema"
+
 const fs = require("fs")
 
 const Table = require("cli-table")
@@ -46,9 +48,7 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
             return this
         },
         expectJSONContains(path: string) {
-            test("body", `has property ${path}`, (received: Response) =>
-                expect(received.body).toHaveProperty(path)
-            )
+            test("body", `has property ${path}`, (received: Response) => expect(received.body).toHaveProperty(path))
 
             return this
         },
@@ -80,32 +80,26 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
 
             return this
         },
-        // expectJSONSchema(schema: jsonschema.Schema) {
-        // this.expectHeaderContains("content-type", "application/json")
+        expectJSONToMatchSchema(schema: any) {
+            test("body", "match schema", ({ body }) => {
+                var v = new Validator()
 
-        // return promise.then(
-        //     (received: Response) => {
-        //         const validation = jsonschema.validate(received.body, schema)
+                // TODO exclude arrays
+                expect(typeof body).toBe("object")
+                const { errors } = v.validate(body, schema)
 
-        //         expect(validation.errors.length).toBe(0)
-        //     })
+                return expect(errors.length).toBe(0)
+            })
 
-        expectJSONSchema() {
-            throw new Error(
-                "[freebees.expectJSONSchema()] is not implemented yet"
-            )
+            return this
         },
         expectBodyToMatchSnapshot() {
-            test("body", "match snapshot", ({ body }) =>
-                expect(body).toMatchSnapshot()
-            )
+            test("body", "match snapshot", ({ body }) => expect(body).toMatchSnapshot())
 
             return this
         },
         expectHeadersToMatchSnapshot() {
-            test("headers", "match snapshot", ({ response }) =>
-                expect(response.headers).toMatchSnapshot()
-            )
+            test("headers", "match snapshot", ({ response }) => expect(response.headers).toMatchSnapshot())
 
             return this
         },
@@ -125,35 +119,22 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
                 "query",
                 `response time is lower than ${time}`,
                 // time to download content is not included
-                ({ response }: Response) =>
-                    expect(
-                        response.timings && response.timings.response
-                    ).toBeLessThan(time)
+                ({ response }: Response) => expect(response.timings && response.timings.response).toBeLessThan(time)
             )
 
             return this
         },
         expectMaxEndTime(time: number) {
-            test(
-                "query",
-                `total time is lower than ${time}`,
-                ({ response }: Response) =>
-                    expect(
-                        response.timings && response.timings.end
-                    ).toBeLessThan(time)
+            test("query", `total time is lower than ${time}`, ({ response }: Response) =>
+                expect(response.timings && response.timings.end).toBeLessThan(time)
             )
 
             return this
         },
         // Duration of HTTP download (timings.end - timings.response)
         expectMaxDownloadTime(time: number) {
-            test(
-                "query",
-                `download time is lower than ${time}`,
-                ({ response }: Response) =>
-                    expect(
-                        response.timingPhases && response.timingPhases.download
-                    ).toBeLessThan(time)
+            test("query", `download time is lower than ${time}`, ({ response }: Response) =>
+                expect(response.timingPhases && response.timingPhases.download).toBeLessThan(time)
             )
 
             return this
@@ -166,20 +147,15 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
         },
         debug(callback: Callback) {
             if (!callback) {
-                throw new Error(
-                    "[freebeese.debug()] a function is expected as first param"
-                )
+                throw new Error("[freebeese.debug()] a function is expected as first param")
             }
             promise.then((received: Response) => callback(received))
 
             return this
         },
         printToFile(callback: Function, filename = "test.txt") {
-            test(
-                "debug",
-                `prints to file ${__dirname + "/" + filename}`,
-                (received: Response) =>
-                    fs.writeFile(__dirname + "/" + filename, callback(received))
+            test("debug", `prints to file ${__dirname + "/" + filename}`, (received: Response) =>
+                fs.writeFile(__dirname + "/" + filename, callback(received))
             )
 
             return this
@@ -208,11 +184,7 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
 function createTest(promise: Promise<Response>, url: URL) {
     return (type: string, name: string, callback: Callback) =>
         describe((url.method || "GET" + " " + url.url).cyan, () =>
-            describe("• " + type, () =>
-                it(name, () =>
-                    promise.then((received: Response) => callback(received))
-                )
-            )
+            describe("• " + type, () => it(name, () => promise.then((received: Response) => callback(received))))
         )
 }
 

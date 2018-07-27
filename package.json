@@ -7,7 +7,9 @@
         "test": "jest",
         "prepublishOnly": "tsc"
     },
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "author": "Laurent Margirier <laurent.margirier+npm@gmail.com>",
     "license": "MIT",
     "repository": {
@@ -15,29 +17,37 @@
         "url": "https://github.com/marg51/freebees"
     },
     "devDependencies": {
-        "@types/es6-shim": "^0.31.35",
-        "@types/jest": "^21.1.9",
-        "@types/lodash": "^4.14.91",
-        "@types/node": "^8.5.2",
-        "@types/request": "2.0.9",
-        "babel-jest": "^22.0.4",
-        "jest": "^22.0.4",
-        "ts-jest": "^22.0.0",
-        "typescript": "^2.6.2"
+        "@types/es6-shim": "^0.31.37",
+        "@types/jest": "^23.3.0",
+        "@types/lodash": "^4.14.112",
+        "@types/node": "^10.5.2",
+        "@types/request": "2.47.1",
+        "babel-jest": "^23.4.0",
+        "jest": "^23.4.1",
+        "ts-jest": "^23.0.1",
+        "typescript": "^2.9.2"
     },
     "jest": {
         "transform": {
             ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
         },
         "testEnvironment": "node",
-        "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)(spec|test).ts"],
-        "moduleFileExtensions": ["ts", "tsx", "js", "json"]
+        "testMatch": [
+            "**/__tests__/**/*.ts",
+            "**/?(*.)(spec|test).ts"
+        ],
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js",
+            "json"
+        ]
     },
     "dependencies": {
         "cli-table": "^0.3.1",
-        "jsonschema": "^1.2.2",
-        "lodash": "^4.17.4",
+        "jsonschema": "^1.2.4",
+        "lodash": "^4.17.10",
         "prettyjson": "^1.2.1",
-        "request": "^2.83.0"
+        "request": "^2.87.0"
     }
 }
