@@ -183,7 +183,7 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
 
 function createTest(promise: Promise<Response>, url: URL) {
     return (type: string, name: string, callback: Callback) =>
-        describe((url.method || "GET" + " " + url.url).cyan, () =>
+        describe(((url.method || "GET") + " " + url.url).cyan, () =>
             describe("• " + type, () => it(name, () => promise.then((received: Response) => callback(received))))
         )
 }
