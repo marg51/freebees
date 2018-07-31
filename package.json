@@ -1,10 +1,11 @@
 {
     "name": "freebees",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "API testing made easy",
     "main": "dist/index.js",
     "scripts": {
         "test": "jest",
+        "postinstall": "tsc",
         "prepublishOnly": "tsc"
     },
     "files": [
