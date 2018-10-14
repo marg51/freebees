@@ -29,11 +29,14 @@ describe("Test jsonplaceholder.typicode.com endpoints", () => {
         .expectMaxEndTime(6000) // end time = response + download
         .expectHeaderToBe("content-type", "application/json; charset=utf-8")
         .expectJSONMatchesObject({ id: 1 }, "0") // get first item, can be a path (ie. users.0.name )
-        .expectJSONToMatchSchema({
-            properties: {
-                hello: { type: "string" },
+        .expectBodyToMatchSchema({
+            type: "array",
+            items: {
+                properties: {
+                    email: { type: "object" },
+                },
+                required: ["email"],
             },
-            required: ["hello"],
         }) // get first item, can be a path (ie. users.0.name )
         .expectBodyContains("Eliseo@gardner.biz")
         .expectBodyContains(/@sydney.com/)

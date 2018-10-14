@@ -45,7 +45,9 @@
         ]
     },
     "dependencies": {
+        "@types/jest-json-schema": "^1.2.0",
         "cli-table": "^0.3.1",
+        "jest-json-schema": "^2.0.1",
         "jsonschema": "^1.2.4",
         "lodash": "^4.17.10",
         "prettyjson": "^1.2.1",

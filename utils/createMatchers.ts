@@ -1,6 +1,7 @@
 import { get } from "lodash"
 import { Response } from "./types"
-import { Validator } from "jsonschema"
+import { matchers } from "jest-json-schema"
+expect.extend(matchers)
 
 const fs = require("fs")
 
@@ -80,15 +81,9 @@ export default function createMatchers(promise: Promise<Response>, url: URL) {
 
             return this
         },
-        expectJSONToMatchSchema(schema: any) {
+        expectBodyToMatchSchema(schema: any) {
             test("body", "match schema", ({ body }) => {
-                var v = new Validator()
-
-                // TODO exclude arrays
-                expect(typeof body).toBe("object")
-                const { errors } = v.validate(body, schema)
-
-                return expect(errors.length).toBe(0)
+                expect(body).toMatchSchema(schema)
             })
 
             return this

@@ -23,6 +23,15 @@ Freebees
     .expectBodyContains("Eliseo@gardner.biz")
     .expectBodyContains(/@sydney.com/)
     .expectBodyToMatchSnapshot()
+    .expectBodyToMatchSchema({
+        type: "array",
+        items: {
+            properties: {
+                email: { type: "object" },
+            },
+            required: ["email"],
+        },
+    })
     .it("expect body should have length 500", ({ body }) => {
         return expect(body.length).toBe(500)
     })
@@ -54,11 +63,10 @@ const http = freebees.default.http
 
 import { http } from "freebees"
 
-http
-    .get({
-        url: "https://jsonplaceholder.typicode.com/posts/1",
-        json: true,
-    })
+http.get({
+    url: "https://jsonplaceholder.typicode.com/posts/1",
+    json: true,
+})
     .expectHeader("x-powered-by")
     .expectHeaderContains("content-type", "application/json")
     .expectJSONContains("userId")
